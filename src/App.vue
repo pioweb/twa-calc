@@ -13,8 +13,8 @@
         <!-- Total -->
         <div class="total w-full px-6 pt-3 text-right">
           <div
-              class="operation"
-              :class="{ big: isBig('operation'), 'opacity-0': currentOperation === '' }"
+            class="operation"
+            :class="{ big: isBig('operation'), 'opacity-0': currentOperation === '' }"
           >
             {{ currentOperation ? currentOperation : 0 }}
           </div>
@@ -23,25 +23,26 @@
           </div>
         </div>
 
-        <Separator/>
+        <Separator />
 
         <!-- Buttons -->
         <div class="buttons shrink-0 w-full p-3">
           <div class="grid grid-cols-4 gap-3">
             <Button class="colorized-button" @click="clear()">{{ clearButtonText }}</Button>
-            <BackSpace @click="backspace()"/>
+            <BackSpace @click="backspace()" />
             <Button class="colorized-button" @click="operate('%')">%</Button>
             <Button class="colorized-button" @click="operate('/')">/</Button>
             <Button v-for="item in [7, 8, 9]" :key="item" @click="operand(item)">{{ item }}</Button>
-            <XMark @click="operate('*')"/>
+            <XMark @click="operate('*')" />
             <Button v-for="item in [4, 5, 6]" :key="item" @click="operand(item)">{{ item }}</Button>
-            <Minus @click="operate('-')"/>
+            <Minus @click="operate('-')" />
             <Button v-for="item in [1, 2, 3]" :key="item" @click="operand(item)">{{ item }}</Button>
-            <Plus @click="operate('+')"/>
+            <Plus @click="operate('+')" />
             <Button v-for="item in ['00', '0', '.']" :key="item" @click="operand(item)"
-            >{{ item }}
+              >{{ item }}
             </Button>
-            <Equal @click="equal()"/>
+            <Equal @click="equal()" />
+            <Equal @click="send()" />
           </div>
         </div>
       </div>
@@ -50,16 +51,16 @@
 </template>
 
 <script setup>
-import {ref, reactive} from 'vue'
 import BackSpace from '@/components/BackSpace.vue'
-import XMark from '@/components/XMark.vue'
+import Button from '@/components/Button.vue'
+import Equal from '@/components/Equal.vue'
 import Minus from '@/components/Minus.vue'
 import Plus from '@/components/Plus.vue'
-import Equal from '@/components/Equal.vue'
-import Button from '@/components/Button.vue'
 import Separator from '@/components/Separator.vue'
-import {evaluate} from 'mathjs'
-import {_} from 'lodash'
+import XMark from '@/components/XMark.vue'
+import { _ } from 'lodash'
+import { evaluate } from 'mathjs'
+import { reactive, ref } from 'vue'
 
 const tgWebApp = window?.Telegram?.WebApp ?? {}
 const isExpanded = ref(tgWebApp?.isExpanded ?? false)
@@ -103,11 +104,11 @@ function operate(x) {
     if (result.value !== '') {
       currentOperation.value = result.value + x + ''
     } else if (
-        _.startsWith(temp, '/') ||
-        _.startsWith(temp, '*') ||
-        _.startsWith(temp, '+') ||
-        _.startsWith(temp, '-') ||
-        _.startsWith(temp, '%')
+      _.startsWith(temp, '/') ||
+      _.startsWith(temp, '*') ||
+      _.startsWith(temp, '+') ||
+      _.startsWith(temp, '-') ||
+      _.startsWith(temp, '%')
     ) {
       currentOperation.value = '0' + x + ''
     }
@@ -127,6 +128,10 @@ function equal() {
   calculate()
   changeState(STATE_DONE)
   addToHistory()
+}
+
+function send() {
+  tgWebApp.sendData(JSON.stringify('$scope.foods'))
 }
 
 function calculate() {
